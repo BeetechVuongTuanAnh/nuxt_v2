@@ -11,7 +11,7 @@ export const useUserStore = defineStore('user', {
     state: (): State => {
         return {
             isMenuOverlay: true,
-            isLoading: true,
+            isLoading: false,
             cart: [],
             checkout: [],
         }

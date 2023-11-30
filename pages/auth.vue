@@ -22,13 +22,13 @@
 </template>
 
 <script setup lang="ts">
-// const client = useSupabaseClient()
-// const user = useSupabaseUser()
-// watchEffect(() => {
-//     if (user.value) {
-//         return navigateTo('/')
-//     }
-// })
+const client = useSupabaseClient()
+const user = useSupabaseUser()
+watchEffect(() => {
+    if (user.value) {
+        return navigateTo('/')
+    }
+})
 const login = async (prov:any) => {
     const { data, error } = await client.auth.signInWithOAuth({
         provider: prov,

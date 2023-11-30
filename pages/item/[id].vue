@@ -13,9 +13,9 @@
                     </div>
                 </div>
                 <div class="md:w-[60%] bg-white p-3 rounded-lg">
-                    <div v-if="true">
-                        <p class="mb-2">Title</p>
-                        <p class="font-light text-[12px] mb-2">description section</p>
+                    <div v-if="product && product.data">
+                        <p class="mb-2">{{ product.data.title }}</p>
+                        <p class="font-light text-[12px] mb-2">{{ product.data.description }}</p>
                     </div>
                     <div class="flex items-center pt-1.5">
                         <span class="h-4 min-w-4 rounded-full p-0.5 bg-[#FFD000] mr-2">
@@ -65,22 +65,32 @@ import { useUserStore } from '~/stores/user';
 
 const userStore = useUserStore();
 const route = useRoute();
+let product = ref()
 let currentImage = ref('');
-onMounted(() => {
-    watchEffect(() => {
-        currentImage.value = 'https://imgs.vietnamnet.vn/Images/vnn/2015/01/09/08/20150109084946-x7.jpg';
-        images.value[0] = 'https://imgs.vietnamnet.vn/Images/vnn/2015/01/09/08/20150109084946-x7.jpg';
-    })
+
+onBeforeMount(async () => {
+    product.value = await useFetch(`/api/prisma/get-product-by-id/${route.params.id}`);
+}),
+
+watchEffect(() => {
+    if (product.value && product.value.data) {    
+        currentImage.value = product.value.data.url
+        images.value[0] = product.value.data.url
+        userStore.isLoading = false
+    }
 })
 
 const priceComputed = computed(() => {
-    return '55.55';
+    if (product.value && product.value.data) {
+        return product.value.data.price / 100
+    }
+    return '0.00'
 })
 
 const isInCart = computed(() => {
     let res = false;
     userStore.cart.forEach(prod => {
-        if(route.params.id == prod.id) {
+        if (route.params.id == prod.id) {
             res = true
         }
     })
@@ -88,15 +98,15 @@ const isInCart = computed(() => {
 })
 const images = ref([
     '',
-    'https://noithatotovietanh.com/admin/sanpham/nang-doi-xe-o-to-tat-ca-nhung-gi-ban-can-biet_3104_anh1.jpg',
-    'https://noithatotovietanh.com/images/ckeditor/images/nang-doi-xe-o-to-tat-ca-nhung-gi-ban-can-biet-1.jpg',
-    'https://carshop.vn/wp-content/uploads/2022/07/hinh-nen-dep-ve-xe-lamborghini_062151225.jpg',
-    'https://static.danhgiaxe.com/data/201525/the-aventadors-aggressive-lines-and-stealth-fighter-like-edges-make-for-a-menacing-beauty-thats-perfect-for-lambos-attention-hoarding-ethos_2324.jpg',
-    'https://nhadepso.com/wp-content/uploads/2023/02/hinh-anh-xe-o-to_4.jpg'
+    'https://picsum.photos/id/212/800/800',
+    'https://picsum.photos/id/233/800/800',
+    'https://picsum.photos/id/165/800/800',
+    'https://picsum.photos/id/99/800/800',
+    'https://picsum.photos/id/144/800/800',
 ])
 
 const addToCart = () => {
-    alert('add cart');
+    userStore.cart.push(product.value.data)
 }
 </script>
 
